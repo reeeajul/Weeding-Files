@@ -1,93 +1,140 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive File Upload</title>
-    <script src="https://apis.google.com/js/api.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 1s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            border: none;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #45a049;
-        }
-    </style>
+<title>Google Drive Upload</title>
+<style>
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f4f4f4;
+}
+
+#upload-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative; /* For animation positioning */
+  overflow: hidden; /* Clip animation */
+}
+
+#upload-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#upload-button:hover {
+  background-color: #3e8e41;
+}
+
+#file-input {
+  display: none;
+}
+
+#status {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+./* Animation Effects */
+#upload-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #03a9f4, #4caf50, #ffeb3b, #f44336);
+  z-index: -1;
+  animation: animate 10s linear infinite;
+  background-size: 500%;
+}
+
+@keyframes animate {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 300% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+#upload-container::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: white;
+  border-radius: 8px;
+  z-index: -1;
+}
+
+</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Upload Files to Google Drive</h2>
-        <input type="file" id="fileInput" multiple>
-        <button onclick="uploadFile()">Upload</button>
-        <p id="status"></p>
-    </div><script>
-    function uploadFile() {
-        const fileInput = document.getElementById('fileInput');
-        const status = document.getElementById('status');
-        if (fileInput.files.length === 0) {
-            status.innerText = "Please select a file.";
-            return;
-        }
-        
-        gapi.load('client', () => {
-            gapi.client.init({
-                apiKey: "AIzaSyAJT5LAKEXHnCpgwkaIBIddpw2ztUmxsGA",
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"]
-            }).then(() => {
-                fileInput.files[0].arrayBuffer().then(content => {
-                    const blob = new Blob([content], { type: fileInput.files[0].type });
-                    const metadata = {
-                        name: fileInput.files[0].name,
-                        mimeType: fileInput.files[0].type
-                    };
-                    
-                    const formData = new FormData();
-                    formData.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-                    formData.append("file", blob);
-                    
-                    fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
-                        method: "POST",
-                        headers: new Headers({ "Authorization": "Bearer YOUR_ACCESS_TOKEN" }),
-                        body: formData
-                    }).then(response => response.json())
-                      .then(data => {
-                          status.innerText = "File uploaded successfully!";
-                      })
-                      .catch(error => {
-                          status.innerText = "Upload failed: " + error;
-                      });
-                });
-            });
-        });
-    }
-</script>
+<div id="upload-container">
+  <input type="file" id="file-input" />
+  <button id="upload-button">Upload File</button>
+  <div id="status"></div>
+</div>
 
+<script>
+const apiKey = "AIzaSyAJT5LAKEXHnCpgwkaIBIddpw2ztUmxsGA";
+const clientId = "808104136310-vpejvs419t4rte0kh2qhokcutgnrsiei.apps.googleusercontent.com";
+const fileInput = document.getElementById('file-input');
+const uploadButton = document.getElementById('upload-button');
+const statusDiv = document.getElementById('status');
+
+uploadButton.addEventListener('click', () => {
+  fileInput.click();
+});
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (file) {
+    uploadFile(file);
+  }
+});
+
+function uploadFile(file) {
+  statusDiv.textContent = 'Uploading...';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`, //This will not work, as you need a proper Oauth token, and this is not a proper token.
+    },
+    body: formData,
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.id) {
+      statusDiv.textContent = `File uploaded successfully! File ID: ${data.id}`;
+    } else {
+      statusDiv.textContent = 'Upload failed.';
+      console.error('Upload failed:', data);
+    }
+  })
+  .catch(error => {
+    statusDiv.textContent = 'Upload error.';
+    console.error('Upload error:', error);
+  });
+}
+</script>
 </body>
 </html>

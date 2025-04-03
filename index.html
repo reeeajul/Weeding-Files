@@ -1,140 +1,476 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Google Drive Upload</title>
-<style>
-body {
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #f4f4f4;
-}
-
-#upload-container {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  position: relative; /* For animation positioning */
-  overflow: hidden; /* Clip animation */
-}
-
-#upload-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#upload-button:hover {
-  background-color: #3e8e41;
-}
-
-#file-input {
-  display: none;
-}
-
-#status {
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-./* Animation Effects */
-#upload-container::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, #03a9f4, #4caf50, #ffeb3b, #f44336);
-  z-index: -1;
-  animation: animate 10s linear infinite;
-  background-size: 500%;
-}
-
-@keyframes animate {
-  0% {
-    background-position: 0 0;
-  }
-  50% {
-    background-position: 300% 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-#upload-container::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  background: white;
-  border-radius: 8px;
-  z-index: -1;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Google Drive Uploader</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        h1 {
+            color: #4285F4;
+            margin-bottom: 30px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+            border-radius: 3px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: #4285F4;
+            background-color: rgba(66, 133, 244, 0.05);
+        }
+        
+        .upload-area.active {
+            border-color: #34A853;
+            background-color: rgba(52, 168, 83, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            color: #4285F4;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover .upload-icon {
+            transform: scale(1.1);
+            color: #34A853;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background-color: #3367D6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        .success {
+            color: #34A853;
+        }
+        
+        .error {
+            color: #EA4335;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .floating-upload {
+            animation: floatUp 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(66, 133, 244, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #4285F4;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<div id="upload-container">
-  <input type="file" id="file-input" />
-  <button id="upload-button">Upload File</button>
-  <div id="status"></div>
-</div>
+    <div class="container">
+        <h1>Google Drive Uploader</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon floating-upload">📁</div>
+            <h3>Drag & Drop files here</h3>
+            <p>or click to browse files</p>
+            <input type="file" class="file-input" id="fileInput" multiple>
+        </div>
+        
+        <button class="btn" id="uploadBtn">Upload to Google Drive</button>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        
+        <div class="status" id="status"></div>
+        <div class="file-info" id="fileInfo"></div>
+    </div>
 
-<script>
-const apiKey = "AIzaSyAJT5LAKEXHnCpgwkaIBIddpw2ztUmxsGA";
-const clientId = "808104136310-vpejvs419t4rte0kh2qhokcutgnrsiei.apps.googleusercontent.com";
-const fileInput = document.getElementById('file-input');
-const uploadButton = document.getElementById('upload-button');
-const statusDiv = document.getElementById('status');
+    <script>
+        // Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const statusDiv = document.getElementById('status');
+        const fileInfoDiv = document.getElementById('fileInfo');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        
+        // Google Drive API configuration
+        const API_KEY = 'AIzaSyBdYEUC9rXQluaYqV7yvNkQo9l2-r66Nd4';
+        const CLIENT_ID = '808104136310-vpejvs419t4rte0kh2qhokcutgnrsiei.apps.googleusercontent.com';
+        const FOLDER_ID = 'root'; // Change this to your specific folder ID if needed
+        
+        let selectedFiles = [];
+        
+        // Event listeners
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+          displayFileInfo();
+        });
 
-uploadButton.addEventListener('click', () => {
-  fileInput.click();
-});
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
 
-fileInput.addEventListener('change', () => {
-  const file = fileInput.files[0];
-  if (file) {
-    uploadFile(file);
-  }
-});
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
 
-function uploadFile(file) {
-  statusDiv.textContent = 'Uploading...';
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+            selectedFiles = Array.from(e.dataTransfer.files);
+            displayFileInfo();
+        });
 
-  const formData = new FormData();
-  formData.append('file', file);
+        uploadBtn.addEventListener('click', () => {
+            if (selectedFiles.length === 0) {
+                statusDiv.textContent = 'Please select files to upload.';
+                statusDiv.classList.add('error');
+                return;
+            }
 
-  fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`, //This will not work, as you need a proper Oauth token, and this is not a proper token.
-    },
-    body: formData,
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.id) {
-      statusDiv.textContent = `File uploaded successfully! File ID: ${data.id}`;
-    } else {
-      statusDiv.textContent = 'Upload failed.';
-      console.error('Upload failed:', data);
-    }
-  })
-  .catch(error => {
-    statusDiv.textContent = 'Upload error.';
-    console.error('Upload error:', error);
-  });
-}
-</script>
+            statusDiv.textContent = '';
+            statusDiv.classList.remove('error', 'success');
+            progressContainer.style.display = 'block';
+            loadingSpinner.style.display = 'block';
+            uploadFiles();
+        });
+
+        // Functions
+        function displayFileInfo() {
+            if (selectedFiles.length > 0) {
+                let fileInfoText = 'Selected files:<br>';
+                selectedFiles.forEach(file => {
+                    fileInfoText += `${file.name} (${formatBytes(file.size)})<br>`;
+                });
+                fileInfoDiv.innerHTML = fileInfoText;
+            } else {
+                fileInfoDiv.innerHTML = '';
+            }
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function uploadFiles() {
+            let uploadedCount = 0;
+            let failedUploads = [];
+
+            function uploadNextFile() {
+                if (uploadedCount < selectedFiles.length) {
+                    uploadFile(selectedFiles[uploadedCount], uploadedCount)
+                        .then(() => {
+                            uploadedCount++;
+                            updateProgress(uploadedCount, selectedFiles.length);
+                            uploadNextFile();
+                        })
+                        .catch((error) => {
+                            failedUploads.push(selectedFiles[uploadedCount].name);
+                            uploadedCount++;
+                            updateProgress(uploadedCount, selectedFiles.length);
+                            uploadNextFile();
+                        });
+                } else {
+                    loadingSpinner.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    if (failedUploads.length === 0) {
+                        statusDiv.textContent = 'All files uploaded successfully!';
+                        statusDiv.classList.add('success');
+                        confettiEffect();
+                    } else {
+                        statusDiv.textContent = `Uploaded ${selectedFiles.length - failedUploads.length} out of ${selectedFiles.length} files. Failed to upload: ${failedUploads.join(', ')}`;
+                        statusDiv.classList.add('error');
+                    }
+                }
+            }
+
+            uploadNextFile();
+        }
+
+        function uploadFile(file, index) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const accessToken = gapi.auth.getToken().access_token;
+                    const boundary = '-------314159265358979323846';
+                    const delimiter = "\r\n--" + boundary + "\r\n";
+                    const close_delim = "\r\n--" + boundary + "--";
+
+                    const contentType = file.type || 'application/octet-stream';
+                    const metadata = {
+                        'name': file.name,
+                        'mimeType': contentType,
+                        'parents': [FOLDER_ID]
+                    };
+
+                    const multipartRequestBody =
+                        delimiter +
+                        'Content-Type: application/json\r\n\r\n' +
+                        JSON.stringify(metadata) +
+                        delimiter +
+                        'Content-Type: ' + contentType + '\r\n' +
+                        'Content-Transfer-Encoding: base64\r\n' +
+                        '\r\n' +
+                        btoa(e.target.result) +
+                        close_delim;
+
+                    const request = gapi.client.request({
+                        'path': '/upload/drive/v3/files',
+                        'method': 'POST',
+                        'params': { 'uploadType': 'multipart' },
+                        'headers': {
+                            'Content-Type': 'multipart/related; boundary="' + boundary + '"',
+                            'Authorization': 'Bearer ' + accessToken
+                        },
+                        'body': multipartRequestBody
+                    });
+
+                    request.execute(function (file) {
+                        if (file) {
+                            resolve();
+                        } else {
+                            reject('Upload failed');
+                        }
+                    });
+                };
+                reader.readAsBinaryString(file);
+            });
+        }
+
+        function updateProgress(uploaded, total) {
+            const percentage = (uploaded / total) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        function confettiEffect() {
+            for (let i = 0; i < 100; i++) {
+                createConfetti();
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.animationDelay = `${Math.random() * 2}s`;
+            confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            document.querySelector('.container').appendChild(confetti);
+            confetti.addEventListener('animationend', () => confetti.remove());
+        }
+
+        // Google API initialization
+        function initClient() {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+                scope: 'https://www.googleapis.com/auth/drive.file'
+            }).then(function () {
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
+                updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            });
+        }
+
+        function handleSignInClick() {
+            gapi.auth2.getAuthInstance().signIn();
+        }
+
+        function updateSignInStatus(isSignedIn) {
+            if (!isSignedIn) {
+                handleSignInClick();
+            }
+        }
+
+        gapi.load('client:auth2', initClient);
+    </script>
 </body>
 </html>

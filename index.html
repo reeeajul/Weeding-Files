@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Drive File Upload</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    .upload-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    #fileInput {
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-container">
+    <h1>Upload to Google Drive</h1>
+    <input type="file" id="fileInput" name="file">
+    <button type="button" onclick="uploadFile()">Upload</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const statusDiv = document.getElementById('status');
+
+      if (!file) {
+        statusDiv.textContent = 'Please select a file.';
+        return;
+      }
+
+      statusDiv.textContent = 'Uploading...';
+
+      const folderId = 'YOUR_FOLDER_ID'; // Replace with your Google Drive folder ID (optional)
+
+      gapi.load('client:auth2', () => {
+        gapi.client.init({
+          apiKey: 'AIzaSyBdYEUC9rXQluaYqV7yvNkQo9l2-r66Nd4',
+          clientId: '808104136310-vpejvs419t4rte0kh2qhokcutgnrsiei.apps.googleusercontent.com',
+          discoveryDocs: ["https://www.googleapis.com/discovery/v3/apis/drive/v3/rest"],
+          scope: 'https://www.googleapis.com/auth/drive.file'
+        }).then(() => {
+          gapi.auth2.getAuthInstance().signIn().then(() => {
+            const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch(`https://www.googleapis.com/upload/drive/v3/files${folderId ? '?parents=' + folderId : ''}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+              },
+              body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('File uploaded:', data);
+              statusDiv.textContent = 'File uploaded successfully!';
+            })
+            .catch(error => {
+              console.error('Error uploading file:', error);
+              statusDiv.textContent = 'Error uploading file.';
+            });
+          });
+        });
+      });
+    }
+  </script>
+  <script async defer src="https://apis.google.com/js/api.js"></script>
+</body>
+</html>
